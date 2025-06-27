@@ -1,0 +1,900 @@
+
+<!DOCTYPE html>
+
+<html lang="es">
+<head>
+<meta charset="utf-8"/>
+<title>Corporación Clase A</title>
+<style>
+    html, body {
+      margin: 0 !important;
+      padding: 0 !important;
+      border: 0;
+      overflow-x: hidden;
+      background: white;
+      font-family: Arial, sans-serif;
+    }
+
+    #fondo-player {
+      width: 100%;
+      height: auto;
+      display: block;
+    }
+
+    .dial-container {
+      max-width: 75vw;
+      margin-left: 10px;
+      width: 100%;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+    }
+
+    .volumen-dial {
+      max-width: 100%;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      background: linear-gradient(90deg, #5E1414, #FFD700);
+      padding: 5px 10px;
+      border-radius: 0;
+      margin: 0;
+      width: 100%;
+    }
+
+    .imagen-volumen {
+      width: 100px;
+      height: 120px;
+      background: url('https://i.postimg.cc/QCCHTRvS/pngtree-volume-knob-with-min-max-levels-volume-minimum-amplifier-vector-png-image-9550989-1.png') center/cover no-repeat;
+    }
+
+    .dial-wrapper {
+      position: relative;
+      flex-grow: 1;
+      height: 80px;
+      background: url('https://i.postimg.cc/kgGZVwjs/notas-musicales-fondo-estilo-dibujos-animados-23-2151056773.jpg') center center / cover no-repeat;
+      overflow: hidden;
+      border-radius: 4px;
+    }
+
+    .overlay {
+      position:absolute;
+      top:0;left:0;right:0;bottom:0;
+      background:black;
+      opacity:0.18;
+      z-index:0;
+    }
+
+    .scale {
+      position: absolute;
+      top: 50%;
+      left: 0;
+      width: 100%;
+      height: 2px;
+      background-color: #000;
+      transform: translateY(-50%);
+      z-index: 1;
+    }
+
+    .tick {
+      position: absolute;
+      width: 2px;
+      background: #000;
+      z-index: 1;
+    }
+
+    .tick-label {
+      position: absolute;
+      bottom: 5px;
+      color: #000;
+      font-size: 12px;
+      transform: translateX(-50%);
+      z-index: 2;
+    }
+
+    .needle {
+      transition: left 0.6s ease;
+      position: absolute;
+      top: 10px;
+      height: 60px;
+      width: 4px;
+      background: red;
+      left: 0%;
+      transform: translateX(-50%);
+      z-index: 3;
+      box-shadow: 0 0 4px red;
+    }
+
+    #freqText {
+      position: absolute;
+      top: 10px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 20px;
+      
+      color: black;
+      z-index: 2;
+    }
+
+    .buttons {
+      display: flex;
+      gap: 5px;
+      justify-content: flex-start;
+      margin: 10px;
+    }
+
+    .buttons button {
+      padding: 8px 14px;
+      font-size: 14px;
+      border: none;
+      background: #222;
+      color: white;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+
+    .buttons button:hover {
+      background: #444;
+    }
+  </style>
+<style>
+    .boton-play-plomo {
+        background-color: #888888 !important;
+        color: white !important;
+        font-size: 24px;
+        border: none;
+        border-radius: 50%;
+        padding: 15px;
+        cursor: pointer;
+        width: 60px;
+        height: 60px;
+    }
+    </style>
+<style>
+.boton-play-turbomix {
+  width: 100px !important;
+  height: 100px !important;
+  border-radius: 50% !important;
+  aspect-ratio: 1 / 1 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+
+  aspect-ratio: 1 / 1;
+
+    background-color: rgba(255, 255, 255, 0.1);
+    border: 3px solid rgba(255,255,255,0.6);
+    border-radius: 50%;
+    width: 100px; height: 100px;
+    height: 120px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-shadow: 0 0 12px rgba(0,0,0,0.4);
+}
+</style>
+<style>
+.triangulo-blanco {
+  width: 0;
+  height: 0;
+  border-left: 36px solid white;
+  border-top: 24px solid transparent;
+  border-bottom: 24px solid transparent;
+}
+.icono-pausa {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+.icono-pausa div {
+  width: 12px;
+  height: 40px;
+  background-color: white;
+}
+</style><style>
+@keyframes ondaBorde {
+  0% { box-shadow: 0 0 0 0 rgba(255,255,255,0.7); }
+  70% { box-shadow: 0 0 0 35px rgba(255,255,255,0); }
+  100% { box-shadow: 0 0 0 0 rgba(255,255,255,0); }
+}
+.boton-play-turbomix {
+  width: 100px !important;
+  height: 100px !important;
+  border-radius: 50% !important;
+  aspect-ratio: 1 / 1 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+
+  aspect-ratio: 1 / 1;
+
+  position: relative;
+  background-color: rgba(255, 255, 255, 0.1);
+  border: 3px solid rgba(255,255,255,0.6);
+  border-radius: 50%;
+  width: 100px; height: 100px;
+  height: 120px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  animation: ondaBorde 2s infinite;
+}
+</style>
+<style>
+#microfono {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 90px;
+  height: auto;
+  padding: 10px;
+  z-index: 9999;
+}
+</style>
+<style>
+#mic-contenedor {
+  position: fixed;
+  bottom: 20px;
+  left: 0;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 12px;
+  padding: 10px;
+  z-index: 9999;
+}
+#mic-contenedor img {
+  width: 90px;
+  height: auto;
+}
+#mic-texto {
+  color: white;
+  font-size: 18px;
+  font-weight: bold;
+}
+</style>
+<style>
+.boton-radio {
+  padding: 12px 24px;
+  font-size: 16px;
+  font-weight: bold;
+  border: none;
+  border-radius: 8px;
+  background-color: #ff0066;
+  color: white;
+  cursor: pointer;
+}
+</style>
+<link href="https://fonts.googleapis.com/css2?family=Anton&amp;display=swap" rel="stylesheet"/><style>
+@keyframes giro3D {
+  0% { transform: rotateY(0deg); }
+  100% { transform: rotateY(360deg); }
+}
+.logo-tv-animado {
+  animation: giro3D 5s linear infinite;
+  transform-style: preserve-3d;
+}
+</style><link rel="manifest" href="manifest.json">
+<link rel="icon" href="icon.png" type="image/png">
+</head>
+<body style="background: transparent; margin: 0; padding: 0;"><div id="side-menu" style="position: fixed; top: 0; left: -100%; width: 450px; height: 100%; background: #880E4F; color: white; z-index: 99998; padding: 40px 20px; transition: left 0.3s ease; box-shadow: 2px 0 12px rgba(0,0,0,0.6);"><div id="close-menu" onclick="document.getElementById('side-menu').style.left='-450px';" style="position: relative; font-size: 60px; text-align: center; cursor: pointer; z-index: 100000; margin-bottom: 30px;">❌</div><a href="#inicio" style="display: block; background: rgba(255, 255, 255, 0.1); color: white; padding: 20px 30px; margin: 20px 0; text-decoration: none; border-radius: 40px; font-size: 36px; font-weight: bold;">🏠 INICIO</a><a href="#valorar" style="display: block; background: rgba(255, 255, 255, 0.1); color: white; padding: 20px 30px; margin: 20px 0; text-decoration: none; border-radius: 40px; font-size: 36px; font-weight: bold;">⭐ VALORAR</a><a href="#pedidos" style="display: block; background: rgba(255, 255, 255, 0.1); color: white; padding: 20px 30px; margin: 20px 0; text-decoration: none; border-radius: 40px; font-size: 36px; font-weight: bold;">💬 PEDIDOS</a><a href="#web" style="display: block; background: rgba(255, 255, 255, 0.1); color: white; padding: 20px 30px; margin: 20px 0; text-decoration: none; border-radius: 40px; font-size: 36px; font-weight: bold;">🌐 WEB</a></div><header><div id="menu-hamburguesa" style="position: absolute; top: 10px; left: 10px; width: 40px; height: 30px; display: flex; flex-direction: column; justify-content: space-between; cursor: pointer; z-index: 10000;"><div style="height: 5px; background: white; border-radius: 2px;"></div><div style="height: 5px; background: white; border-radius: 2px;"></div><div style="height: 5px; background: white; border-radius: 2px;"></div></div><div style="width: 100%; height: 80px; background: black; z-index: 9999; position: relative;">
+<span id="hora-encabezado" style="color: white; font-size: 40px; font-family: 'Anton', sans-serif; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: transparent; padding: 0; border-radius: 0; box-shadow: none;">--:--:--</span>
+<script>
+  function actualizarHora() {
+    const ahora = new Date();
+    const h = String(ahora.getHours()).padStart(2, '0');
+    const m = String(ahora.getMinutes()).padStart(2, '0');
+    const s = String(ahora.getSeconds()).padStart(2, '0');
+    document.getElementById("hora-encabezado").textContent = `${h}:${m}:${s}`;
+  }
+  setInterval(actualizarHora, 1000);
+  actualizarHora();
+</script>
+</div><img alt="Compartir" onclick="compartirEnlace()" src="https://i.postimg.cc/ydpVhGtD/80929984-share-sign-illustration-vector-white-icon-with-soft-shadow-on-transparent-background.png" style="position: absolute; top: 0px; right: 10px; width: 85px; height: 85px; cursor: pointer; z-index: 9999;"/></header>
+<video autoplay="True" id="background-video" loop="True" muted="True" style="position: fixed; inset: 0; width: 100vw; height: 100vh; object-fit: cover; z-index: -100; pointer-events: none;">
+<source src="https://lachizzma.com/wp-content/uploads/2025/06/Fondo-de-video-movimiento-morado-y-celeste-lluvia-de-diamanted.mp4" type="video/mp4"/>
+</video>
+<div id="overlay-layer" style="position: fixed; inset: 0; z-index: -90; pointer-events: none; background: linear-gradient(to bottom, rgba(128, 0, 128, 0.4), rgba(255, 0, 0, 0.4));"></div>
+<img alt="Diseño Player" id="fondo-player" src="https://i.postimg.cc/RZ952Kvm/Picsart-25-06-24-17-25-36-603.png"/>
+<div class="dial-container">
+<div class="volumen-dial">
+<div class="imagen-volumen"></div>
+<div class="dial-wrapper" id="dial">
+<div class="overlay"></div>
+<div id="freqText">96.5 Radio Inca</div>
+<div class="scale"></div>
+<div class="needle" id="needle"></div>
+</div>
+</div>
+<style>
+  @keyframes turboEq {
+    0% { transform: scaleY(1); }
+    100% { transform: scaleY(1.8); }
+  }
+</style>
+</div>
+<script>
+    const dial = document.getElementById('dial');
+    const needle = document.getElementById('needle');
+    const freqText = document.getElementById('freqText');
+    const minFreq = 88;
+    const maxFreq = 108;
+
+    function createTicks() {
+      for (let freq = minFreq; freq <= maxFreq; freq++) {
+        const position = ((freq - minFreq) / (maxFreq - minFreq)) * 100;
+        const tickBottom = document.createElement('div');
+        tickBottom.classList.add('tick');
+        tickBottom.style.left = position + '%';
+        tickBottom.style.bottom = '5px';
+        tickBottom.style.height = '20px';
+        const tickTop = document.createElement('div');
+        tickTop.classList.add('tick');
+        tickTop.style.left = position + '%';
+        tickTop.style.top = '5px';
+        tickTop.style.height = '20px';
+        const label = document.createElement('div');
+        label.classList.add('tick-label');
+        label.style.left = position + '%';
+        label.innerText = freq;
+        dial.appendChild(tickBottom);
+        dial.appendChild(tickTop);
+        dial.appendChild(label);
+      }
+    }
+
+    function setStation(freq, name) {
+      const percentage = ((freq - minFreq) / (maxFreq - minFreq)) * 100;
+      needle.style.left = percentage + '%';
+      freqText.innerText = `${freq.toFixed(1)} ${name}`;
+    }
+
+    createTicks();</script>
+<div style="width: 100%; display: flex; justify-content: center; margin-top: 100px;">
+<div style="display: flex; gap: 15px;">
+<button id="btn-inca" onclick="setStation(96.5, 'RADIO INCA')" style="padding: 0; background: transparent; border: none; cursor: pointer;">
+<img alt="Radio Inca" src="https://i.postimg.cc/NM4trBhr/Picsart-25-06-24-21-36-30-941.png" style="height: 80px; object-fit: contain;"/>
+</button>
+<button id="btn-pasion" onclick="setStation(105.7, 'RADIO PASIÓN')" style="padding: 0; background: transparent; border: none; cursor: pointer;">
+<img alt="Radio Pasión" src="https://i.postimg.cc/2SsL0F17/Picsart-25-06-24-21-36-05-873.png" style="height: 80px; object-fit: contain;"/>
+</button>
+<button id="btn-fama" onclick="setStation(91.5, 'RADIO FAMA')" style="padding: 0; background: transparent; border: none; cursor: pointer;">
+<img alt="Radio Fama" src="https://i.postimg.cc/nzzx7NnR/Picsart-25-06-24-21-36-54-071.png" style="height: 80px; object-fit: contain;"/>
+</button>
+</div>
+</div>
+<div style="width: 100%; text-align: center; margin: 40px auto 0 auto;">
+<button onclick="abrirTV()" style="background: transparent; border: none; cursor: pointer;"><img alt="TV por Cable" src="https://i.postimg.cc/G2rQ514K/Picsart-25-06-24-21-43-20-285.png" style="height: 120px; object-fit: contain;"/>
+</button>
+</div>
+<div id="redes-sociales" style="width: 100%; display: flex; justify-content: center; gap: 20px; margin-top: 60px; margin-bottom: 40px;">
+<a href="https://facebook.com" style="width: 60px; height: 60px;" target="_blank">
+<img src="https://i.ibb.co/ZRV46JNH/facebook-new.png" style="width: 50px; height: 50px; object-fit: contain;; width: 60px; height: 60px;"/>
+</a>
+<a href="https://wa.me/56951151305" target="_blank">
+<img src="https://i.postimg.cc/m1ygh0P4/Picsart-25-06-22-22-20-33-656.png" style="width: 50px; height: 50px; object-fit: contain;"/>
+</a>
+<a href="https://instagram.com" style="width: 60px; height: 60px;" target="_blank">
+<img src="https://i.postimg.cc/FYs7ksbB/Picsart-25-06-22-22-22-50-529.png" style="width: 50px; height: 50px; object-fit: contain;"/>
+</a>
+<a href="https://tiktok.com" style="width: 60px; height: 60px;" target="_blank">
+<img src="https://i.postimg.cc/N5Q0Zfnj/Picsart-25-06-22-22-21-40-567.png" style="width: 50px; height: 50px; object-fit: contain;"/>
+</a>
+<a href="https://youtube.com" style="width: 60px; height: 60px;" target="_blank">
+<img src="https://i.postimg.cc/3WXRLDnq/Picsart-25-06-22-22-22-18-325.png" style="width: 50px; height: 50px; object-fit: contain;"/>
+</a>
+</div>
+<div id="estado-stream" style="display:inline-block;width: 400px;margin-top:15px;margin-left:5px;padding: 10px 30px;background:red;color:white;font-size: 28px; font-weight: bold;border-radius:6px;z-index:9999;text-align:center;">CONECTANDO...</div>
+<style>
+  .banner-texto {
+    position: relative;
+    width: 100%;
+    overflow: hidden;
+    background: transparent;
+    height: 40px;
+    margin-top: 10px;
+  }
+
+  .banner-texto span {
+    display: inline-block;
+    white-space: nowrap;
+    font-size: 28px; font-weight: bold;
+    
+    color: white;
+    text-transform: uppercase;
+    animation: desplazamiento 12s linear infinite;
+    padding-left: 100%;
+  }
+
+  @keyframes desplazamiento {
+    0% { transform: translateX(0); }
+    100% { transform: translateX(-100%); }
+  }
+</style>
+<div style="position: relative;">
+<div class="ecualizador-barras-sonido" style="position: absolute; top: -65px; right: 10px; display: flex; gap: 8px; height: 60px; align-items: flex-end; z-index: 10; pointer-events: none;">
+<div style="width: 20px; height: 40px; background: white; animation: barraSonido 0.4s ease-in-out infinite alternate;"></div>
+<div style="width: 20px; height: 55px; background: white; animation: barraSonido 0.5s ease-in-out infinite alternate;"></div>
+<div style="width: 20px; height: 35px; background: white; animation: barraSonido 0.6s ease-in-out infinite alternate;"></div>
+</div>
+<style>
+  @keyframes barraSonido {
+    0% { transform: scaleY(1); opacity: 0.7; }
+    50% { transform: scaleY(1.5); opacity: 1; }
+    100% { transform: scaleY(0.8); opacity: 0.6; }
+  }
+</style>
+<style>
+  @keyframes barraSonido {
+    0% { transform: scaleY(1); opacity: 0.7; }
+    50% { transform: scaleY(1.5); opacity: 1; }
+    100% { transform: scaleY(0.8); opacity: 0.6; }
+  }
+</style>
+<div id="caratula-container" style="width: 100%; text-align: center; margin-top: 10px; margin-bottom: -10px;"><img alt="" id="caratula-img" src="" style="max-width: 200px; height: auto; border-radius: 12px; box-shadow: 0 0 12px rgba(255,255,255,0.4);"/></div><div class="banner-texto" style="position: relative;">
+<span id="texto-banner">radio inca 96.5 fm desde cajamarca para todo el perú — escúchanos en todas las plataformas virtuales</span>
+</div>
+</div>
+<style>
+  @keyframes eqTop {
+    0% { transform: scaleY(1); }
+    100% { transform: scaleY(2); }
+  }
+</style>
+<div id="info-ciudad" style="width: 100%; text-align: left; padding-left: 15px; font-size: 24px; font-weight: bold; color: white; margin-top: 5px;"></div>
+<button class="boton-play-turbomix" id="boton-play" onclick="togglePlayPause(this)" style="position: fixed; bottom: 20px; right: 20px; z-index: 9999;"><span id="icono-reproductor" style="color: white; font-size: 48px;"><div class="triangulo-blanco"></div></span></button>
+<audio autoplay="True" id="player-audio" style="display:none;"></audio>
+<script>
+    const audio = document.getElementById('player-audio');
+
+audio.addEventListener('playing', () => {
+  setEstado('ESTÁS ESCUCHANDO', 'green');
+});
+audio.addEventListener('error', () => {
+  setEstado('ERROR DE AUDIO', 'gray');
+});
+
+    const estado = document.getElementById('estado-stream');
+    const playBtn = document.getElementById('boton-play');
+    let currentStream = '';
+    let isPlaying = false;
+
+    function setEstado(text, color) {
+      estado.innerText = text;
+      estado.style.background = color;
+    }
+
+    function playStream(url) {
+      setEstado('CONECTANDO...', 'red');
+      if (currentStream !== url) {
+        currentStream = url;
+        audio.src = url;
+        audio.load();
+        audio.play().catch(() => {});
+        
+        isPlaying = true;
+      } else {
+        if (isPlaying) {
+          audio.pause();
+          
+          setEstado('PAUSA', 'gray');
+          isPlaying = false;
+        } else {
+          audio.play().catch(() => {});
+          
+          isPlaying = true;
+        }
+      }
+    }
+
+    
+
+    document.getElementById('btn-inca')?.addEventListener('click', () => {
+  document.getElementById('info-ciudad').innerText = 'Cajamarca - Perú';
+  document.getElementById('texto-banner').innerText = 'RADIO INCA 96.5 FM DESDE CAJAMARCA PARA TODO EL PERÚ — ESCÚCHANOS EN TODAS LAS PLATAFORMAS VIRTUALES';
+  document.getElementById('info-ciudad').innerText = 'Cajamarca - Perú';
+      actualizarCaratula('https://api.zeno.fm/mounts/metadata/subscribe/487vgx80yuhvv');
+  cambiarRadio('https://stream.zeno.fm/487vgx80yuhvv', 'https://api.zeno.fm/mounts/metadata/subscribe/487vgx80yuhvv');
+    });
+    document.getElementById('btn-pasion')?.addEventListener('click', () => {
+  document.getElementById('info-ciudad').innerText = 'San Miguel - Cajamarca';
+  document.getElementById('texto-banner').innerText = 'RADIO PASION LA RADIO DEL AMOR MUSICA ROMANTICA LAS 24 HORAS DEL DIA';
+      cambiarRadio('https://stream.zeno.fm/dhxne9mr8hhvv', 'https://api.zeno.fm/mounts/metadata/subscribe/dhxne9mr8hhvv');
+    });
+    document.getElementById('btn-fama')?.addEventListener('click', () => {
+  document.getElementById('info-ciudad').innerText = 'Lima - Perú';
+  document.getElementById('texto-banner').innerText = 'RADIO FAMA LA PRIMERA MUSICA VARIADA PARA TODOS TUS GUTOS';
+      cambiarRadio('https://stream.zeno.fm/hlu0yaszg7utv', 'https://api.zeno.fm/mounts/metadata/subscribe/hlu0yaszg7utv');
+    });
+
+    playBtn?.addEventListener('click', () => {
+      if (!currentStream) {
+        actualizarCaratula('https://api.zeno.fm/mounts/metadata/subscribe/487vgx80yuhvv');
+  cambiarRadio('https://stream.zeno.fm/487vgx80yuhvv', 'https://api.zeno.fm/mounts/metadata/subscribe/487vgx80yuhvv');
+      } else {
+        if (isPlaying) {
+          audio.pause();
+          setEstado('PAUSA', 'gray');
+          
+          isPlaying = false;
+        } else {
+          audio.play().catch(() => {});
+          
+          isPlaying = true;
+        }
+      }
+    });
+  </script>
+<div id="barra-negra-final" style="position: fixed; bottom: 0; left: 0; width: 100%; height: 120px; background: black; z-index: 9989;"></div>
+<div id="mic-contenedor">
+<img src="https://i.postimg.cc/QNm3t1hj/pngtree-retro-white-microphone-vector-png-image-11393596.png"/>
+<div id="mic-texto">
+<div style="font-size: 18px; font-weight: bold;">Sonando Ahora:</div>
+<div id="metadata-actual" style="font-size: 14px; color: #ccc;">Cargando...</div>
+</div>
+</div>
+<script>
+let currentSource;
+
+
+<!-- borrado -->
+<div class="barra"></div>
+<div class="barra"></div>
+<div class="barra"></div>
+<div class="barra"></div>
+<div class="barra"></div>
+<div class="barra"></div>
+<div class="barra"></div>
+<div class="barra"></div>
+<div class="barra"></div>
+<div class="barra"></div>
+<video autoplay="" id="ondas-fondo" loop="" muted="" playsinline="" style="position: fixed; bottom: 120px; left: 0; width: 100%; height: 60px; object-fit: cover; z-index: 9992; pointer-events: none;">
+<source src="https://lachizzma.com/wp-content/uploads/2025/06/ondas-blancas-fondo-radio.mp4" type="video/mp4"/>
+</video>
+<div id="fondo-ondas" style="position: fixed; bottom: 120px; width: 100%; height: 220px; pointer-events: none; z-index: 9990;">
+<svg preserveaspectratio="none" style="width: 100%; height: 100%;" viewbox="0 0 1440 600">
+<path fill="white" fill-opacity="0.12">
+<animate attributename="d" dur="1.2s" repeatcount="indefinite" values="
+        M0,120L80,-80C160,-180,240,360,320,120C400,-160,480,360,560,-80C640,400,720,100,800,320C880,540,960,0,1040,240C1120,480,1200,-60,1280,300C1360,660,1400,160,1440,60L1440,600L0,600Z;
+        M0,160L80,40C160,-60,240,320,320,260C400,200,480,80,560,160C640,240,720,100,800,420C880,740,960,140,1040,180C1120,220,1200,320,1280,140C1360,-40,1400,180,1440,160L1440,600L0,600Z;
+        M0,120L80,-80C160,-180,240,360,320,120C400,-160,480,360,560,-80C640,400,720,100,800,320C880,540,960,0,1040,240C1120,480,1200,-60,1280,300C1360,660,1400,160,1440,60L1440,600L0,600Z
+      "></animate>
+</path>
+</svg>
+</div>
+<script>
+    function actualizarHora() {
+      const ahora = new Date();
+      const h = String(ahora.getHours()).padStart(2, '0');
+      const m = String(ahora.getMinutes()).padStart(2, '0');
+      const s = String(ahora.getSeconds()).padStart(2, '0');
+      document.getElementById("hora-encabezado").textContent = `${h}:${m}:${s}`;
+    }
+    setInterval(actualizarHora, 1000);
+    actualizarHora();
+    </script>
+<script>
+let currentSource;
+
+function cambiarRadio(streamUrl, metadataUrl) {
+  const audio = document.getElementById('player-audio');
+  const metadata = document.getElementById('metadata-actual');
+  const estado = document.getElementById('estado-stream');
+  const icono = document.getElementById('icono-reproductor');
+
+  // Si ya está en esta radio, solo alterna play/pause
+  if (currentStream === streamUrl) {
+    if (audio.paused) {
+      audio.play().then(() => {
+        estado.innerText = "ESTÁS ESCUCHANDO";
+        estado.style.background = "green";
+        icono.innerHTML = '<div class="icono-pausa"><div></div><div></div></div>';
+      });
+    } else {
+      audio.pause();
+      estado.innerText = "PAUSA";
+      estado.style.background = "gray";
+      icono.innerHTML = '<div class="triangulo-blanco"></div>';
+    }
+    return;
+  }
+
+  // Si es nueva emisora, asignamos
+  currentStream = streamUrl;
+  audio.src = streamUrl;
+  audio.load();
+  audio.play().then(() => {
+    estado.innerText = "ESTÁS ESCUCHANDO";
+    estado.style.background = "green";
+    icono.innerHTML = '<div class="icono-pausa"><div></div><div></div></div>';
+  }).catch(() => {
+    estado.innerText = "ERROR DE AUDIO";
+    estado.style.background = "gray";
+  });
+
+  if (currentSource) {
+    currentSource.close();
+  }
+
+  currentSource = new EventSource(metadataUrl);
+  metadata.innerText = "Cargando...";
+
+  currentSource.addEventListener("message", function(event) {
+    try {
+      const parsed = JSON.parse(event.data);
+      metadata.innerText = parsed.streamTitle || "SIN METADATA";
+    } catch (e) {
+      metadata.innerText = "SIN DATOS";
+    }
+  });
+
+  currentSource.onerror = function () {
+    metadata.innerText = "ERROR DE CONEXIÓN";
+  };
+}
+</script>
+<script>
+function togglePlayPause(btn) {
+  const audio = document.getElementById('player-audio');
+  const icono = document.getElementById('icono-reproductor');
+  const estado = document.getElementById('estado-stream');
+
+  // Si no hay stream activo, asignamos manualmente y reproducimos
+  if (!currentStream) {
+    currentStream = 'https://stream.zeno.fm/487vgx80yuhvv';
+    audio.src = currentStream;
+    audio.load();
+    audio.play().then(() => {
+      estado.innerText = "ESTÁS ESCUCHANDO";
+      estado.style.background = "green";
+      icono.innerHTML = '<div class="icono-pausa"><div></div><div></div></div>';
+    }).catch(() => {
+      estado.innerText = "ERROR DE AUDIO";
+      estado.style.background = "gray";
+      icono.innerHTML = '<div class="triangulo-blanco"></div>';
+    });
+
+    // Activar metadata también
+    const metadataUrl = 'https://api.zeno.fm/mounts/metadata/subscribe/487vgx80yuhvv';
+    if (currentSource) currentSource.close();
+    currentSource = new EventSource(metadataUrl);
+    const metadata = document.getElementById('metadata-actual');
+    metadata.innerText = "Cargando...";
+    currentSource.addEventListener("message", function(event) {
+      try {
+        const parsed = JSON.parse(event.data);
+        const title = parsed.streamTitle || "SIN METADATA";
+        metadata.innerText = title;
+      } catch (e) {
+        metadata.innerText = "SIN DATOS";
+      }
+    });
+    currentSource.onerror = function () {
+      metadata.innerText = "ERROR DE CONEXIÓN";
+    };
+
+    return;
+  }
+
+  // Si ya hay stream, alternar play/pause
+  if (audio.paused) {
+    audio.play().then(() => {
+      estado.innerText = "ESTÁS ESCUCHANDO";
+      estado.style.background = "green";
+      icono.innerHTML = '<div class="icono-pausa"><div></div><div></div></div>';
+    }).catch(() => {
+      estado.innerText = "ERROR DE AUDIO";
+      estado.style.background = "gray";
+    });
+  } else {
+    audio.pause();
+    estado.innerText = "PAUSA";
+    estado.style.background = "gray";
+    icono.innerHTML = '<div class="triangulo-blanco"></div>';
+  }
+}
+</script>
+<style>
+#tv-modal-overlay {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0,0,0,0.8);
+  z-index: 99998;
+  display: none;
+  align-items: center;
+  justify-content: center;
+}
+
+#tv-modal-content {
+  background: #111;
+  padding: 20px;
+  border-radius: 12px;
+  max-width: 90vw;
+  max-height: 90vh;
+  box-shadow: 0 0 30px rgba(0,0,0,0.9);
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+#tv-modal-content video {
+  width: 90vw;
+  height: auto;
+  max-height: 80vh;
+  background: black;
+}
+
+#tv-close-btn {
+  position: absolute;
+  top: -12px;
+  right: -12px;
+  background: red;
+  color: white;
+  font-size: 20px;
+  border: none;
+  border-radius: 50%;
+  width: 32px;
+  height: 32px;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+#redes-sociales {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 30px;
+  margin-top: 60px;
+  margin-bottom: 40px;
+}
+#redes-sociales a {
+  width: 90px;
+  height: 90px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+#redes-sociales img {
+  width: 90px !important;
+  height: 90px !important;
+  object-fit: contain;
+  transition: transform 0.3s ease;
+}
+#redes-sociales img:hover {
+  transform: scale(1.1);
+}
+</style>
+<div id="tv-modal-overlay">
+<div id="tv-modal-content" style="background: #003399; padding: 20px; border-radius: 12px; max-width: 90vw; max-height: 90vh; box-shadow: 0 0 30px rgba(0,0,0,0.9); position: relative; display: flex; flex-direction: column; align-items: center;">
+<button id="tv-close-btn" onclick="cerrarTV()">×</button>
+<div style="margin-bottom: 15px; text-align: center;">
+<div style="margin-bottom: 20px; text-align: center;"><img alt="Logo TV" class="logo-tv-animado" src="https://i.postimg.cc/RhbXZ5ZT/LOGO-TV.png" style="max-width: 300px; width: 100%; height: auto;"/></div><button class="boton-en-vivo-animado" style="
+  background-color: red;
+  color: white;
+  border: none;
+  padding: 10px 24px;
+  font-size: 22px;
+  font-weight: bold;
+  border-radius: 8px;
+  box-shadow: 0 0 10px rgba(255,0,0,0.8);
+">
+  🔴 EN VIVO
+</button>
+</div><video autoplay="" controls="" id="tv-player" style="width: 90vw; max-height: 80vh; background: black; display: block;">
+<source src="https://micanal.ovh/livestreams/289.KGLHLVTUXEZR.m3u8" type="application/x-mpegURL"/>
+      Tu navegador no soporta reproducción de video en vivo.
+    </video>
+</div>
+</div>
+<script>
+function abrirTV() {
+  document.getElementById('tv-modal-overlay').style.display = 'flex';
+}
+function cerrarTV() {
+  document.getElementById('tv-modal-overlay').style.display = 'none';
+  const video = document.getElementById('tv-player');
+  if (video) {
+    video.pause();
+    video.currentTime = 0;
+  }
+}
+</script>
+<script>
+function actualizarCaratula(urlMetadata) {
+  const caratulaImg = document.getElementById('caratula-img');
+  if (!caratulaImg) return;
+
+  if (window.currentCoverSource) {
+    window.currentCoverSource.close();
+  }
+
+  window.currentCoverSource = new EventSource(urlMetadata);
+  window.currentCoverSource.onmessage = function(event) {
+    try {
+      const data = JSON.parse(event.data);
+      const artwork = data.artworkUrl || data.image || '';
+      if (artwork && caratulaImg) {
+        caratulaImg.src = artwork;
+      } else {
+        caratulaImg.src = '';
+      }
+    } catch (e) {
+      caratulaImg.src = '';
+    }
+  };
+}
+</script><script>
+function compartirEnlace() {
+  const url = window.location.href;
+  if (navigator.share) {
+    navigator.share({
+      title: document.title,
+      text: '¡Escucha esta radio!',
+      url: url
+    }).catch(console.error);
+  } else {
+    navigator.clipboard.writeText(url);
+    alert("Enlace copiado al portapapeles.");
+  }
+}
+</script><script>
+document.getElementById('menu-hamburguesa').onclick = function() {
+  document.getElementById('side-menu').style.left = '0px';
+};
+document.getElementById('close-menu').onclick = function() {
+  document.getElementById('side-menu').style.left = '-100%';
+};
+</script>
+<script>
+document.getElementById('player-audio').addEventListener('play', function () {
+  if ('mediaSession' in navigator) {
+    navigator.mediaSession.metadata = new MediaMetadata({
+      title: "Corporación Clase A",
+      artist: "Radio en vivo",
+      artwork: [
+        { src: "https://i.postimg.cc/bvg2v3VC/Picsart-25-06-27-13-58-38-827.jpg", sizes: "512x512", type: "image/jpeg" }
+      ]
+    });
+  }
+});
+</script>
+
+
+<script>
+let deferredPrompt;
+window.addEventListener('beforeinstallprompt', (e) => {
+  e.preventDefault();
+  deferredPrompt = e;
+  const installBtn = document.createElement('button');
+  installBtn.textContent = '📲 Instalar App';
+  installBtn.style.position = 'fixed';
+  installBtn.style.bottom = '160px';
+  installBtn.style.right = '20px';
+  installBtn.style.zIndex = '9999';
+  installBtn.style.background = '#880E4F';
+  installBtn.style.color = 'white';
+  installBtn.style.border = 'none';
+  installBtn.style.padding = '12px 20px';
+  installBtn.style.fontSize = '18px';
+  installBtn.style.borderRadius = '8px';
+  installBtn.style.cursor = 'pointer';
+  document.body.appendChild(installBtn);
+
+  installBtn.addEventListener('click', () => {
+    installBtn.remove();
+    deferredPrompt.prompt();
+    deferredPrompt.userChoice.then(() => { deferredPrompt = null; });
+  });
+});
+</script>
+
+</body>
+</html>
